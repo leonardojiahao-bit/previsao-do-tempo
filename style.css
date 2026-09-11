@@ -332,11 +332,13 @@ h1 {
 .temperature-line {
   display: flex;
   align-items: flex-start;
+  gap: .75rem;
   margin-top: var(--space-3);
   color: var(--text);
 }
 
 .temperature-line strong {
+  display: block;
   font-family: "Space Grotesk", sans-serif;
   font-size: clamp(4rem, 9vw, 7rem);
   letter-spacing: -.1em;
@@ -344,8 +346,12 @@ h1 {
 }
 
 .temperature-line span {
-  margin-top: var(--space-2);
+  display: inline-block;
+  flex: 0 0 auto;
+  margin-top: .4rem;
   font-size: 1.5rem;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .feels-like {
