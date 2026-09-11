@@ -1,11 +1,8 @@
 # Previsão do Tempo
 
 ## Autor
-Aplicação web responsiva para consultar a previsão do tempo por cidade.
 
 Leonardo Jiahao Linchen — Matrícula: 22510052
-
-## Acesso
 
 ## Descrição
 
