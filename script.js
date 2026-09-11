@@ -113,7 +113,7 @@ function renderCurrentWeather(city, weather) {
   const current = weather.current;
   const info = getWeatherInfo(current.weather_code);
 
-  locationName.textContent = `${city.name}, ${city.country_code}`;
+  locationName.textContent = city.name;
   weatherIcon.textContent = info.icon;
   currentDescription.textContent = info.description;
   currentTemperature.textContent = Math.round(current.temperature_2m);
