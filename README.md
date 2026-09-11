@@ -1,0 +1,43 @@
+# Previsão do Tempo
+
+## Autor
+
+Leonardo Jiahao Linchen — Matrícula: 22510052
+
+## Descrição
+
+Aplicação web responsiva para consulta do clima por cidade. O projeto apresenta a temperatura atual, sensação térmica, umidade, velocidade do vento e a previsão dos próximos cinco dias.
+
+## API utilizada
+
+- Open-Meteo Geocoding API: https://open-meteo.com/en/docs/geocoding-api
+- Open-Meteo Weather API: https://open-meteo.com/en/docs
+
+## Funcionalidades
+
+- Pesquisa de cidades.
+- Consulta da temperatura atual.
+- Exibição da sensação térmica.
+- Exibição da umidade do ar.
+- Exibição da velocidade do vento.
+- Previsão dos próximos cinco dias.
+- Tratamento de cidade não encontrada.
+- Tema claro e tema escuro.
+- Layout responsivo.
+
+## Tecnologias
+
+- HTML5
+- CSS3
+- JavaScript
+- Fetch API
+- Open-Meteo API
+
+## Como executar localmente
+
+Abra o arquivo `index.html` no navegador ou utilize a extensão Live Server do Visual Studio Code.
+
+## Links
+
+- Aplicação no GitHub Pages: https://leonardojiahao-bit.github.io/clima-agora/
+- Repositório no GitHub: https://github.com/leonardojiahao-bit/clima-agora

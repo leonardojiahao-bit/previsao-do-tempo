@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Previsão do Tempo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#"><span class="brand-mark" aria-hidden="true"><span></span></span><span>Previsão do Tempo</span></a>
+    <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Alternar tema">◐</button>
+  </header>
+  <main class="container">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">CLIMA / AGORA</p>
+        <h1>Consulte o clima de qualquer cidade.</h1>
+        <p class="intro">Digite o nome de uma cidade para consultar as condições atuais e a previsão dos próximos dias.</p>
+      </div>
+      <form id="weather-form" class="search-form">
+        <label for="city-input">Pesquisar cidade</label>
+        <div class="search-row"><input id="city-input" name="city" type="search" placeholder="Exemplo: São Paulo" autocomplete="off" required><button type="submit" class="primary-button">Consultar clima</button></div>
+        <div class="quick-cities" aria-label="Cidades rápidas"><button type="button" class="city-chip" data-city="São Paulo">São Paulo</button><button type="button" class="city-chip" data-city="Brasília">Brasília</button><button type="button" class="city-chip" data-city="Rio de Janeiro">Rio de Janeiro</button><button type="button" class="city-chip" data-city="Belo Horizonte">Belo Horizonte</button><button type="button" class="city-chip" data-city="Salvador">Salvador</button><button type="button" class="city-chip" data-city="Recife">Recife</button><button type="button" class="city-chip" data-city="Curitiba">Curitiba</button><button type="button" class="city-chip" data-city="Porto Alegre">Porto Alegre</button><button type="button" class="city-chip" data-city="Manaus">Manaus</button><button type="button" class="city-chip" data-city="Belém">Belém</button><button type="button" class="city-chip" data-city="Fortaleza">Fortaleza</button><button type="button" class="city-chip" data-city="Goiânia">Goiânia</button></div>
+      </form>
+    </section>
+    <div id="status" class="status" role="status" aria-live="polite">Escolha uma cidade para consultar o clima.</div>
+    <section id="weather-content" class="weather-content is-hidden">
+      <div class="location-heading"><div><p class="eyebrow location-label">LOCAL ATUAL</p><h2 id="location-name">São Paulo</h2></div><div id="weather-icon" class="weather-icon" aria-hidden="true">☀</div></div>
+      <div class="weather-layout">
+        <article class="current-weather-card"><p id="current-description" class="weather-description">Céu limpo</p><div class="temperature-line"><strong id="current-temperature">--</strong><span>°C</span></div><p class="feels-like">Sensação térmica <strong id="feels-like">--</strong>°C</p><div class="current-details"><div class="detail-item"><span>Umidade</span><strong id="humidity">--%</strong></div><div class="detail-item"><span>Vento</span><strong id="wind-speed">-- km/h</strong></div><div class="detail-item"><span>Atualizado às</span><strong id="updated-time">--</strong></div></div></article>
+        <section class="forecast-section"><div class="section-heading"><p class="eyebrow">PRÓXIMOS DIAS</p><h3>Previsão do tempo</h3></div><div id="forecast-list" class="forecast-list"></div></section>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><p>Dados fornecidos por <a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></p></footer>
+</body>
+</html>
