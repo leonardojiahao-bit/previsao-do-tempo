@@ -1,0 +1,4 @@
+NAMES              IMAGE               STATUS                  PORTS
+previsao-tempo-2   bootcamp2-app:1.1   Up Less than a second   0.0.0.0:8081->80/tcp, [::]:8081->80/tcp
+previsao-tempo-1   bootcamp2-app:1.1   Up Less than a second   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp
+
