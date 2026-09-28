@@ -13,10 +13,10 @@
         return [];
       },
       async add() {
-        throw new Error("A persist锚ncia ainda n茫o foi configurada.");
+        throw new Error("A persistência ainda não foi configurada.");
       },
       async remove() {
-        throw new Error("A persist锚ncia ainda n茫o foi configurada.");
+        throw new Error("A persistência ainda não foi configurada.");
       }
     };
     return;
@@ -66,4 +66,3 @@
     }
   };
 })();
-
