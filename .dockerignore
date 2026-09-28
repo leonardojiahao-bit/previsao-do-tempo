@@ -1,0 +1,11 @@
+.git
+.github
+.vscode
+.idea
+docs
+supabase
+README.md
+*.md
+.DS_Store
+Thumbs.db
+
