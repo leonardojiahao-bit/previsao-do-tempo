@@ -1,0 +1,56 @@
+name: Validar dois containers Docker
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - codex/etapa-02
+    paths:
+      - Dockerfile
+      - .dockerignore
+      - index.html
+      - style.css
+      - script.js
+      - config.js
+      - favorites.js
+      - scripts/render_docker_ps.py
+      - .github/workflows/docker-evidence.yml
+
+jobs:
+  docker-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Construir a imagem
+        run: docker build --tag bootcamp2-app:1.1 .
+
+      - name: Executar dois containers
+        run: |
+          docker run -d -p 8080:80 --name previsao-tempo-1 bootcamp2-app:1.1
+          docker run -d -p 8081:80 --name previsao-tempo-2 bootcamp2-app:1.1
+
+      - name: Verificar as duas portas
+        run: |
+          curl --fail --retry 5 --retry-delay 1 http://localhost:8080/ > /dev/null
+          curl --fail --retry 5 --retry-delay 1 http://localhost:8081/ > /dev/null
+
+      - name: Capturar docker ps
+        run: |
+          mkdir -p docs
+          docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}' | tee docs/docker-ps.txt
+
+      - name: Gerar evidência em PNG
+        run: |
+          python -m pip install --disable-pip-version-check pillow
+          python scripts/render_docker_ps.py docs/docker-ps.txt docs/docker-ps-dois-containers.png
+
+      - name: Publicar evidências
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-ps-dois-containers
+          path: |
+            docs/docker-ps.txt
+            docs/docker-ps-dois-containers.png
+
