@@ -1,0 +1,22 @@
+name: Validar imagem Docker
+
+on:
+  push:
+    branches:
+      - main
+      - codex/etapa-02
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar o c贸digo
+        uses: actions/checkout@v4
+
+      - name: Construir a imagem
+        run: docker build --tag bootcamp2-app:test .
+
+

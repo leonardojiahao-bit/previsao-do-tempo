@@ -1,9 +1,11 @@
 const form = document.querySelector("#weather-form");
 const cityInput = document.querySelector("#city-input");
+const searchButton = document.querySelector("#search-button");
 const statusElement = document.querySelector("#status");
 const weatherContent = document.querySelector("#weather-content");
 const themeToggle = document.querySelector("#theme-toggle");
 const locationName = document.querySelector("#location-name");
+const locationDetails = document.querySelector("#location-details");
 const weatherIcon = document.querySelector("#weather-icon");
 const currentDescription = document.querySelector("#current-description");
 const currentTemperature = document.querySelector("#current-temperature");
@@ -12,6 +14,13 @@ const humidity = document.querySelector("#humidity");
 const windSpeed = document.querySelector("#wind-speed");
 const updatedTime = document.querySelector("#updated-time");
 const forecastList = document.querySelector("#forecast-list");
+const favoriteButton = document.querySelector("#favorite-button");
+const favoritesStatus = document.querySelector("#favorites-status");
+const favoritesList = document.querySelector("#favorites-list");
+const favoritesRepository = window.favoritesRepository;
+
+let selectedCity = null;
+let savedFavorites = [];
 
 const weatherCodes = {
   0: { description: "Céu limpo", icon: "☀" },
@@ -58,9 +67,40 @@ function formatTime(timeString) {
   }).format(new Date(timeString));
 }
 
+function formatLocationDetails(city) {
+  return [city.admin1 || city.estado, city.country || city.pais]
+    .filter(Boolean)
+    .join(" · ");
+}
+
 function setStatus(message, isError = false) {
   statusElement.textContent = message;
   statusElement.classList.toggle("error", isError);
+}
+
+function setFavoritesStatus(message, isError = false) {
+  favoritesStatus.textContent = message;
+  favoritesStatus.classList.toggle("error", isError);
+}
+
+function setSearchLoading(isLoading) {
+  searchButton.disabled = isLoading;
+  searchButton.textContent = isLoading ? "Consultando..." : "Consultar clima";
+}
+
+function isSelectedCitySaved() {
+  if (!selectedCity) return false;
+
+  return savedFavorites.some((favorite) => (
+    Number(favorite.latitude) === Number(selectedCity.latitude)
+    && Number(favorite.longitude) === Number(selectedCity.longitude)
+  ));
+}
+
+function updateFavoriteButton() {
+  const saved = isSelectedCitySaved();
+  favoriteButton.disabled = !selectedCity || !favoritesRepository.available || saved;
+  favoriteButton.textContent = saved ? "★ Cidade salva" : "☆ Favoritar cidade";
 }
 
 async function findCity(city) {
@@ -113,7 +153,8 @@ function renderCurrentWeather(city, weather) {
   const current = weather.current;
   const info = getWeatherInfo(current.weather_code);
 
-  locationName.textContent = city.name;
+  locationName.textContent = city.name || city.nome;
+  locationDetails.textContent = formatLocationDetails(city);
   weatherIcon.textContent = info.icon;
   currentDescription.textContent = info.description;
   currentTemperature.textContent = Math.round(current.temperature_2m);
@@ -141,14 +182,145 @@ function renderForecast(weather) {
   }).join("");
 }
 
-async function searchWeather(cityName) {
-  const city = await findCity(cityName);
-  const weather = await getWeather(city.latitude, city.longitude);
+function createFavoriteCard(favorite) {
+  const card = document.createElement("article");
+  card.className = "favorite-card";
 
-  renderCurrentWeather(city, weather);
+  const content = document.createElement("div");
+  const title = document.createElement("h3");
+  const details = document.createElement("p");
+  title.textContent = favorite.nome;
+  details.textContent = formatLocationDetails(favorite) || "Localização salva";
+  content.append(title, details);
+
+  const actions = document.createElement("div");
+  actions.className = "favorite-actions";
+
+  const consultButton = document.createElement("button");
+  consultButton.type = "button";
+  consultButton.className = "secondary-button";
+  consultButton.textContent = "Consultar";
+  consultButton.addEventListener("click", () => searchFavorite(favorite));
+
+  const removeButton = document.createElement("button");
+  removeButton.type = "button";
+  removeButton.className = "danger-button";
+  removeButton.textContent = "Remover";
+  removeButton.addEventListener("click", () => removeFavorite(favorite.id, removeButton));
+
+  actions.append(consultButton, removeButton);
+  card.append(content, actions);
+  return card;
+}
+
+function renderFavorites() {
+  favoritesList.replaceChildren();
+
+  if (savedFavorites.length === 0) {
+    setFavoritesStatus("Nenhuma cidade favorita ainda. Consulte uma cidade e salve-a aqui.");
+    updateFavoriteButton();
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  savedFavorites.forEach((favorite) => fragment.append(createFavoriteCard(favorite)));
+  favoritesList.append(fragment);
+  setFavoritesStatus(`${savedFavorites.length} cidade${savedFavorites.length === 1 ? "" : "s"} salva${savedFavorites.length === 1 ? "" : "s"}.`);
+  updateFavoriteButton();
+}
+
+async function loadFavorites() {
+  if (!favoritesRepository.available) {
+    setFavoritesStatus("Configure o Supabase em config.js para ativar a persistência.", true);
+    updateFavoriteButton();
+    return;
+  }
+
+  setFavoritesStatus("Carregando favoritos...");
+
+  try {
+    savedFavorites = await favoritesRepository.list();
+    renderFavorites();
+  } catch (error) {
+    console.error("Erro ao listar favoritos:", error);
+    setFavoritesStatus("Não foi possível carregar as cidades favoritas.", true);
+  }
+}
+
+async function addSelectedCityToFavorites() {
+  if (!selectedCity || !favoritesRepository.available) return;
+
+  favoriteButton.disabled = true;
+  favoriteButton.textContent = "Salvando...";
+
+  try {
+    await favoritesRepository.add(selectedCity);
+    await loadFavorites();
+    setFavoritesStatus(`${selectedCity.name} foi adicionada aos favoritos.`);
+  } catch (error) {
+    console.error("Erro ao salvar favorito:", error);
+
+    if (error.code === "23505") {
+      setFavoritesStatus("Esta cidade já está nos favoritos.", true);
+    } else {
+      setFavoritesStatus("Não foi possível salvar esta cidade.", true);
+    }
+  } finally {
+    updateFavoriteButton();
+  }
+}
+
+async function removeFavorite(id, button) {
+  button.disabled = true;
+  button.textContent = "Removendo...";
+
+  try {
+    await favoritesRepository.remove(id);
+    await loadFavorites();
+  } catch (error) {
+    console.error("Erro ao remover favorito:", error);
+    button.disabled = false;
+    button.textContent = "Remover";
+    setFavoritesStatus("Não foi possível remover esta cidade.", true);
+  }
+}
+
+async function displayWeather(city) {
+  const weather = await getWeather(city.latitude, city.longitude);
+  selectedCity = {
+    name: city.name || city.nome,
+    admin1: city.admin1 || city.estado || null,
+    country: city.country || city.pais || null,
+    latitude: Number(city.latitude),
+    longitude: Number(city.longitude)
+  };
+
+  renderCurrentWeather(selectedCity, weather);
   renderForecast(weather);
   weatherContent.classList.remove("is-hidden");
+  updateFavoriteButton();
   setStatus("");
+}
+
+async function searchWeather(cityName) {
+  const city = await findCity(cityName);
+  await displayWeather(city);
+}
+
+async function searchFavorite(favorite) {
+  weatherContent.classList.add("is-hidden");
+  setSearchLoading(true);
+  setStatus(`Consultando o clima em ${favorite.nome}...`);
+
+  try {
+    await displayWeather(favorite);
+    cityInput.value = favorite.nome;
+    weatherContent.scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch (error) {
+    setStatus(error.message || "Não foi possível realizar a consulta.", true);
+  } finally {
+    setSearchLoading(false);
+  }
 }
 
 form.addEventListener("submit", async (event) => {
@@ -162,14 +334,19 @@ form.addEventListener("submit", async (event) => {
   }
 
   weatherContent.classList.add("is-hidden");
+  setSearchLoading(true);
   setStatus("Consultando o clima...");
 
   try {
     await searchWeather(city);
   } catch (error) {
     setStatus(error.message || "Não foi possível realizar a consulta.", true);
+  } finally {
+    setSearchLoading(false);
   }
 });
+
+favoriteButton.addEventListener("click", addSelectedCityToFavorites);
 
 document.querySelectorAll(".city-chip").forEach((button) => {
   button.addEventListener("click", () => {
@@ -184,10 +361,13 @@ themeToggle.addEventListener("click", () => {
 
   document.documentElement.dataset.theme = nextTheme;
   themeToggle.textContent = nextTheme === "dark" ? "☀" : "◐";
+  localStorage.setItem("weather-theme", nextTheme);
 });
 
-document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches
-  ? "dark"
-  : "light";
+const savedTheme = localStorage.getItem("weather-theme");
+document.documentElement.dataset.theme = savedTheme
+  || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+themeToggle.textContent = document.documentElement.dataset.theme === "dark" ? "☀" : "◐";
 
 setStatus("Escolha uma cidade para consultar o clima.");
+loadFavorites();
