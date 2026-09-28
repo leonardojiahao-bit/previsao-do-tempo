@@ -36,4 +36,3 @@ on public.favoritos
 for delete
 to anon
 using (true);
-
