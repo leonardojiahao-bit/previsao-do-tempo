@@ -102,8 +102,8 @@ O arquivo [`.dockerignore`](.dockerignore) exclui do contexto de build o histór
 
 A imagem é publicada com três tags:
 
-- `1.0`: primeira versão funcional com Supabase e Docker.
-- `1.1`: melhoria com prevenção de duplicidade, estados de carregamento e persistência do tema.
+- `1.0`: primeira versão funcional da aplicação, anterior à persistência com Supabase.
+- `1.1`: evolução com Supabase, prevenção de duplicidade, estados de carregamento e persistência do tema.
 - `latest`: aponta para a versão estável mais recente, atualmente a `1.1`.
 
 ### SQ3 — Overview no Docker Hub
