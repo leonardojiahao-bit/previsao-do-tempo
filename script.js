@@ -23,31 +23,31 @@ let selectedCity = null;
 let savedFavorites = [];
 
 const weatherCodes = {
-  0: { description: "C茅u limpo", icon: "鈽€" },
-  1: { description: "Predominantemente limpo", icon: "馃尋" },
-  2: { description: "Parcialmente nublado", icon: "鉀? },
-  3: { description: "Nublado", icon: "鈽? },
-  45: { description: "Neblina", icon: "馃尗" },
-  48: { description: "Neblina congelante", icon: "馃尗" },
-  51: { description: "Garoa fraca", icon: "馃對" },
-  53: { description: "Garoa", icon: "馃對" },
-  55: { description: "Garoa forte", icon: "馃導" },
-  61: { description: "Chuva fraca", icon: "馃導" },
-  63: { description: "Chuva moderada", icon: "馃導" },
-  65: { description: "Chuva forte", icon: "馃導" },
-  71: { description: "Neve fraca", icon: "馃尐" },
-  73: { description: "Neve moderada", icon: "馃尐" },
-  75: { description: "Neve forte", icon: "鉂? },
-  80: { description: "Pancadas fracas", icon: "馃對" },
-  81: { description: "Pancadas de chuva", icon: "馃導" },
-  82: { description: "Pancadas fortes", icon: "鉀? },
-  95: { description: "Trovoada", icon: "鉀? },
-  96: { description: "Trovoada com granizo", icon: "鉀? },
-  99: { description: "Trovoada forte com granizo", icon: "鉀? }
+  0: { description: "Céu limpo", icon: "☀" },
+  1: { description: "Predominantemente limpo", icon: "🌤" },
+  2: { description: "Parcialmente nublado", icon: "⛅" },
+  3: { description: "Nublado", icon: "☁" },
+  45: { description: "Neblina", icon: "🌫" },
+  48: { description: "Neblina congelante", icon: "🌫" },
+  51: { description: "Garoa fraca", icon: "🌦" },
+  53: { description: "Garoa", icon: "🌦" },
+  55: { description: "Garoa forte", icon: "🌧" },
+  61: { description: "Chuva fraca", icon: "🌧" },
+  63: { description: "Chuva moderada", icon: "🌧" },
+  65: { description: "Chuva forte", icon: "🌧" },
+  71: { description: "Neve fraca", icon: "🌨" },
+  73: { description: "Neve moderada", icon: "🌨" },
+  75: { description: "Neve forte", icon: "❄" },
+  80: { description: "Pancadas fracas", icon: "🌦" },
+  81: { description: "Pancadas de chuva", icon: "🌧" },
+  82: { description: "Pancadas fortes", icon: "⛈" },
+  95: { description: "Trovoada", icon: "⛈" },
+  96: { description: "Trovoada com granizo", icon: "⛈" },
+  99: { description: "Trovoada forte com granizo", icon: "⛈" }
 };
 
 function getWeatherInfo(code) {
-  return weatherCodes[code] || { description: "Condi莽茫o desconhecida", icon: "鈥? };
+  return weatherCodes[code] || { description: "Condição desconhecida", icon: "—" };
 }
 
 function formatDay(dateString, index) {
@@ -70,7 +70,7 @@ function formatTime(timeString) {
 function formatLocationDetails(city) {
   return [city.admin1 || city.estado, city.country || city.pais]
     .filter(Boolean)
-    .join(" 路 ");
+    .join(" · ");
 }
 
 function setStatus(message, isError = false) {
@@ -100,7 +100,7 @@ function isSelectedCitySaved() {
 function updateFavoriteButton() {
   const saved = isSelectedCitySaved();
   favoriteButton.disabled = !selectedCity || !favoritesRepository.available || saved;
-  favoriteButton.textContent = saved ? "鈽?Cidade salva" : "鈽?Favoritar cidade";
+  favoriteButton.textContent = saved ? "★ Cidade salva" : "☆ Favoritar cidade";
 }
 
 async function findCity(city) {
@@ -116,13 +116,13 @@ async function findCity(city) {
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error("O servi莽o de localiza莽茫o est谩 temporariamente indispon铆vel.");
+    throw new Error("O serviço de localização está temporariamente indisponível.");
   }
 
   const data = await response.json();
 
   if (!data.results || data.results.length === 0) {
-    throw new Error("Cidade n茫o encontrada. Tente outro nome.");
+    throw new Error("Cidade não encontrada. Tente outro nome.");
   }
 
   return data.results[0];
@@ -143,7 +143,7 @@ async function getWeather(latitude, longitude) {
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error("O servi莽o de clima est谩 temporariamente indispon铆vel.");
+    throw new Error("O serviço de clima está temporariamente indisponível.");
   }
 
   return response.json();
@@ -176,7 +176,7 @@ function renderForecast(weather) {
       <article class="forecast-item">
         <span class="forecast-day">${formatDay(date, index)}</span>
         <span class="forecast-condition">${info.icon} ${info.description}</span>
-        <span class="forecast-temperature">${maximum}掳 / ${minimum}掳</span>
+        <span class="forecast-temperature">${maximum}° / ${minimum}°</span>
       </article>
     `;
   }).join("");
@@ -190,7 +190,7 @@ function createFavoriteCard(favorite) {
   const title = document.createElement("h3");
   const details = document.createElement("p");
   title.textContent = favorite.nome;
-  details.textContent = formatLocationDetails(favorite) || "Localiza莽茫o salva";
+  details.textContent = formatLocationDetails(favorite) || "Localização salva";
   content.append(title, details);
 
   const actions = document.createElement("div");
@@ -231,7 +231,7 @@ function renderFavorites() {
 
 async function loadFavorites() {
   if (!favoritesRepository.available) {
-    setFavoritesStatus("Configure o Supabase em config.js para ativar a persist锚ncia.", true);
+    setFavoritesStatus("Configure o Supabase em config.js para ativar a persistência.", true);
     updateFavoriteButton();
     return;
   }
@@ -243,7 +243,7 @@ async function loadFavorites() {
     renderFavorites();
   } catch (error) {
     console.error("Erro ao listar favoritos:", error);
-    setFavoritesStatus("N茫o foi poss铆vel carregar as cidades favoritas.", true);
+    setFavoritesStatus("Não foi possível carregar as cidades favoritas.", true);
   }
 }
 
@@ -261,9 +261,9 @@ async function addSelectedCityToFavorites() {
     console.error("Erro ao salvar favorito:", error);
 
     if (error.code === "23505") {
-      setFavoritesStatus("Esta cidade j谩 est谩 nos favoritos.", true);
+      setFavoritesStatus("Esta cidade já está nos favoritos.", true);
     } else {
-      setFavoritesStatus("N茫o foi poss铆vel salvar esta cidade.", true);
+      setFavoritesStatus("Não foi possível salvar esta cidade.", true);
     }
   } finally {
     updateFavoriteButton();
@@ -281,7 +281,7 @@ async function removeFavorite(id, button) {
     console.error("Erro ao remover favorito:", error);
     button.disabled = false;
     button.textContent = "Remover";
-    setFavoritesStatus("N茫o foi poss铆vel remover esta cidade.", true);
+    setFavoritesStatus("Não foi possível remover esta cidade.", true);
   }
 }
 
@@ -317,7 +317,7 @@ async function searchFavorite(favorite) {
     cityInput.value = favorite.nome;
     weatherContent.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
-    setStatus(error.message || "N茫o foi poss铆vel realizar a consulta.", true);
+    setStatus(error.message || "Não foi possível realizar a consulta.", true);
   } finally {
     setSearchLoading(false);
   }
@@ -340,7 +340,7 @@ form.addEventListener("submit", async (event) => {
   try {
     await searchWeather(city);
   } catch (error) {
-    setStatus(error.message || "N茫o foi poss铆vel realizar a consulta.", true);
+    setStatus(error.message || "Não foi possível realizar a consulta.", true);
   } finally {
     setSearchLoading(false);
   }
@@ -360,15 +360,14 @@ themeToggle.addEventListener("click", () => {
   const nextTheme = currentTheme === "dark" ? "light" : "dark";
 
   document.documentElement.dataset.theme = nextTheme;
-  themeToggle.textContent = nextTheme === "dark" ? "鈽€" : "鈼?;
+  themeToggle.textContent = nextTheme === "dark" ? "☀" : "◐";
   localStorage.setItem("weather-theme", nextTheme);
 });
 
 const savedTheme = localStorage.getItem("weather-theme");
 document.documentElement.dataset.theme = savedTheme
   || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-themeToggle.textContent = document.documentElement.dataset.theme === "dark" ? "鈽€" : "鈼?;
+themeToggle.textContent = document.documentElement.dataset.theme === "dark" ? "☀" : "◐";
 
 setStatus("Escolha uma cidade para consultar o clima.");
 loadFavorites();
-
