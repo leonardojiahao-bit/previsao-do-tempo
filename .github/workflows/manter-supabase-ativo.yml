@@ -1,0 +1,40 @@
+name: Manter Supabase ativo
+
+on:
+  schedule:
+    # Executa quatro vezes por dia. Os horários abaixo usam UTC.
+    - cron: "17 0,6,12,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manter-ativo:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Consultar o banco de dados no Supabase
+        shell: bash
+        run: |
+          URL_SUPABASE=$(sed -n 's/.*supabaseUrl: *"\([^"]*\)".*/\1/p' config.js)
+          CHAVE_SUPABASE=$(sed -n 's/.*supabaseKey: *"\([^"]*\)".*/\1/p' config.js)
+
+          if [ -z "$URL_SUPABASE" ] || [ -z "$CHAVE_SUPABASE" ]; then
+            echo "Não foi possível ler a configuração do Supabase."
+            exit 1
+          fi
+
+          curl \
+            --fail-with-body \
+            --show-error \
+            --silent \
+            "$URL_SUPABASE/rest/v1/favoritos?select=id&limit=1" \
+            -H "apikey: $CHAVE_SUPABASE" \
+            -H "Authorization: Bearer $CHAVE_SUPABASE"
+
+          echo
+          echo "Supabase consultado com sucesso."
